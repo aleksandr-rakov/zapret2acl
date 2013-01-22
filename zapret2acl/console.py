@@ -3,14 +3,35 @@ from optparse import OptionParser
 from pyquery import PyQuery as pq
 import telnetlib
 
-def before_hook(options):
+def before_hook():
     yield "no access list %s"%options.acl
 
 acl_template="access-list %s deny ip any host %s"
 
-def after_hook(options):
+def after_hook():
     yield "wr"
 
+def parse_data(data):
+    doc=pq(data)
+    yield before_hook()
+    for x in doc('ip'):
+        yield acl_template%(options.acl,x.text)
+    yield after_hook()
+
+def send_acl(acl,host,user=None,password=None):
+    telnet  = telnetlib.Telnet(host)
+    if user: 
+        telnet.read_until('Username: ', 3) 
+        telnet.write(user + '\r')
+    if password:
+        telnet.read_until('Password: ', 3)  
+        telnet.write(password + '\r') 
+
+    for line in acl:
+        telnet.write(line + '\r')
+    telnet.write('exit' + '\r')
+    return telnet.read_all()
+    
 def main():
     parser = OptionParser()
     parser.add_option("-f", "--file", dest="filename",
@@ -30,20 +51,10 @@ def main():
             parser.print_help()
             exit()
 
-    doc=pq(filename=options.filename)
-    
-    new_acl=[acl_template%(options.acl,x.text) for x in doc('ip')]
-    
-    telnet  = telnetlib.Telnet(options.cisco)
-    if options.user: 
-        telnet.read_until('Username: ', 3) 
-        telnet.write(options.user + '\r')
-    if options.password:
-        telnet.read_until('Password: ', 3)  
-        telnet.write(options.password + '\r') 
+    fd=open(options.filename)
+    data=fd.read()
+    fd.close()
 
-    for block in [before_hook(options),new_acl,after_hook(options)]:
-        for line in block:
-            telnet.write(line + '\r')
-    telnet.write('exit' + '\r')
-    print telnet.read_all()
+    new_acl=parse_data(data)
+
+    send_acl(new_acl,options.cisco,options.user,options.password)

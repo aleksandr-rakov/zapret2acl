@@ -6,16 +6,32 @@
     <meta name="author" content="doggy">
   </head>
   <body>
+    <div>
+      <form accept-charset="utf-8" enctype="multipart/form-data" method="POST" action="${request.route_url('form')}">
+        <p>
+          <input type="file" name='file'>
+        </p>
+        <p>
+          <input type="submit" value="Upoad file">
+        </p>
+        <p>
+          <label><input type="text" name='cisco'>Cisco ip</label>
+        </p>
+        <p>
+          <label><input type="text" name='acl'>Acl</label>
+        </p>
+        <p>
+          <label><input type="text" name='user'>User</label>
+        </p>
+        <p>
+          <label><input type="text" name='pass'>Password</label>
+        </p>
+      </form>
+    </div>
     %if status:
     <div>
         ${status}
     </div>
     %endif
-    <div>
-      <form accept-charset="utf-8" enctype="multipart/form-data" method="POST" action="${request.route_url('form')}">
-        <input type="file" name='file'>
-        <input type="submit" value="Upoad file">
-      </form>
-    </div>
   </body>
 </html>
