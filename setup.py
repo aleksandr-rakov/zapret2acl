@@ -1,39 +1,40 @@
+import os
+
 from setuptools import setup, find_packages
-import sys, os
 
 here = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(here, 'README.rst')).read()
-NEWS = open(os.path.join(here, 'NEWS.txt')).read()
+README = open(os.path.join(here, 'README.txt')).read()
+CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
+requires = [
+    'pyramid',
+    'waitress',
+    ]
 
-version = '0.1'
-
-install_requires = [
-    # List your project dependencies here.
-    # For more details, see:
-    # http://packages.python.org/distribute/setuptools.html#declaring-dependencies
-    'pyquery'
-]
-
-
-setup(name='zapret_info_gov_2_cisco_acl',
-    version=version,
-    description="generate cisco acl from zapret.info.gov dump.xml",
-    long_description=README + '\n\n' + NEWS,
-    classifiers=[
-      # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-    ],
-    keywords='',
-    author='doggy',
-    author_email='aleksandr.rakov@gmail.com',
-    url='',
-    license='',
-    packages=find_packages('src'),
-    package_dir = {'': 'src'},include_package_data=True,
-    zip_safe=False,
-    install_requires=install_requires,
-    entry_points={
-        'console_scripts':
-            ['zapret_info_gov_2_cisco_acl=zapret_info_gov_2_cisco_acl:main']
-    }
-)
+setup(name='zapret2acl',
+      version='0.0',
+      description='zapret2acl',
+      long_description=README + '\n\n' + CHANGES,
+      classifiers=[
+        "Programming Language :: Python",
+        "Framework :: Pyramid",
+        "Topic :: Internet :: WWW/HTTP",
+        "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+        ],
+      author='',
+      author_email='',
+      url='',
+      keywords='web pyramid pylons',
+      packages=find_packages(),
+      include_package_data=True,
+      zip_safe=False,
+      install_requires=requires,
+      tests_require=requires,
+      test_suite="zapret2acl",
+      entry_points="""\
+      [paste.app_factory]
+      main = zapret2acl:main
+      [console_scripts]
+       zapret2acl = zapret2acl.console:main
+      """,
+      )

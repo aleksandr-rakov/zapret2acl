@@ -1,2 +1,2 @@
-include README.rst
-include NEWS.txt
+include *.txt *.ini *.cfg *.rst
+recursive-include zapret2acl *.ico *.png *.css *.gif *.jpg *.pt *.txt *.mak *.mako *.js *.html *.xml
