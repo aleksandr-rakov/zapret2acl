@@ -20,12 +20,12 @@ def form_view(request):
         status='Error reading file'
 
     try:
-        new_acl=parse_data(data)
+        new_acl=parse_data(data,request.POST.get('acl'))
     except:
         status='Error parsing data'
 
     try:
-        status = send_acl(new_acl,options.cisco,options.user,options.password)
+        status = send_acl(new_acl,request.POST.get('cisco'),request.POST.get('options.user'),request.POST.get('options.password')
     except:
         status='Error sending acl to cisco'
 

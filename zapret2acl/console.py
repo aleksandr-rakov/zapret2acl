@@ -11,11 +11,11 @@ acl_template="access-list %s deny ip any host %s"
 def after_hook():
     yield "wr"
 
-def parse_data(data):
+def parse_data(data,acl):
     doc=pq(data)
     yield before_hook()
     for x in doc('ip'):
-        yield acl_template%(options.acl,x.text)
+        yield acl_template%(acl,x.text)
     yield after_hook()
 
 def send_acl(acl,host,user=None,password=None):
@@ -55,6 +55,6 @@ def main():
     data=fd.read()
     fd.close()
 
-    new_acl=parse_data(data)
+    new_acl=parse_data(data,acl)
 
     send_acl(new_acl,options.cisco,options.user,options.password)

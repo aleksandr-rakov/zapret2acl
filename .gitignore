@@ -9,5 +9,3 @@ develop-eggs
 tmp
 build
 dist
-
-uploaded/*
