@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from .console import parse_data,send_acl
@@ -20,12 +21,12 @@ def form_view(request):
         status='Error reading file'
 
     try:
-        new_acl=parse_data(data,request.POST.get('acl'))
+        new_acl=parse_data(data,request.POST.get('acl',''))
     except:
         status='Error parsing data'
 
     try:
-        status = send_acl(new_acl,request.POST.get('cisco'),request.POST.get('options.user'),request.POST.get('options.password')
+        status = send_acl(new_acl,request.POST.get('cisco',''),request.POST.get('options.user',''),request.POST.get('options.password',''))
     except:
         status='Error sending acl to cisco'
 

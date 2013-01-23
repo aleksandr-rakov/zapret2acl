@@ -3,29 +3,23 @@ from optparse import OptionParser
 from pyquery import PyQuery as pq
 import telnetlib
 
-def before_hook():
-    yield "no access list %s"%options.acl
-
 acl_template="access-list %s deny ip any host %s"
-
-def after_hook():
-    yield "wr"
 
 def parse_data(data,acl):
     doc=pq(data)
-    yield before_hook()
+    yield "no access-list %s"%acl
     for x in doc('ip'):
         yield acl_template%(acl,x.text)
-    yield after_hook()
+    #yield 'wr'
 
 def send_acl(acl,host,user=None,password=None):
     telnet  = telnetlib.Telnet(host)
     if user: 
         telnet.read_until('Username: ', 3) 
-        telnet.write(user + '\r')
+        telnet.write((user + '\r').encode('utf-8'))
     if password:
         telnet.read_until('Password: ', 3)  
-        telnet.write(password + '\r') 
+        telnet.write((password + '\r'.encode('utf-8')) 
 
     for line in acl:
         telnet.write(line + '\r')
