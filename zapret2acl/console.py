@@ -10,7 +10,7 @@ def parse_data(data,acl):
     yield "no access-list %s"%acl
     for x in doc('ip'):
         yield acl_template%(acl,x.text)
-    #yield 'wr'
+    yield "access-list %s permit ip any any"
 
 def send_acl(acl,host,user=None,password=None):
     telnet  = telnetlib.Telnet(host)
@@ -23,11 +23,12 @@ def send_acl(acl,host,user=None,password=None):
 
     telnet.write('ena' + '\r')
     telnet.write('conf t' + '\r')
-    
+
     for line in acl:
         telnet.write((line + '\r').encode('utf-8'))
     telnet.write('end' + '\r')
 
+    #telnet.write('wr' + '\r')
     telnet.write('exit' + '\r')
     return telnet.read_all()
     
