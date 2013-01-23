@@ -26,7 +26,7 @@ def form_view(request):
         status='Error parsing data'
 
     try:
-        status = send_acl(new_acl,request.POST.get('cisco',''),request.POST.get('options.user',''),request.POST.get('options.password',''))
+        status = send_acl(new_acl,request.POST.get('cisco',''),request.POST.get('user',''),request.POST.get('pass',''))
     except:
         status='Error sending acl to cisco'
 

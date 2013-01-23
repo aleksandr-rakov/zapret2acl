@@ -19,10 +19,12 @@ def send_acl(acl,host,user=None,password=None):
         telnet.write((user + '\r').encode('utf-8'))
     if password:
         telnet.read_until('Password: ', 3)  
-        telnet.write((password + '\r'.encode('utf-8')) 
+        telnet.write((password + '\r').encode('utf-8')) 
 
     for line in acl:
-        telnet.write(line + '\r')
+        telnet.write((line + '\r').encode('utf-8'))
+    telnet.write('end' + '\r')
+
     telnet.write('exit' + '\r')
     return telnet.read_all()
     

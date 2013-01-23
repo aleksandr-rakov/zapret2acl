@@ -29,9 +29,9 @@
       </form>
     </div>
     %if status:
-    <div>
+    <pre>
         ${status}
-    </div>
+    </pre>
     %endif
   </body>
 </html>
