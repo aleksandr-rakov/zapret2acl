@@ -3,35 +3,54 @@ from optparse import OptionParser
 from pyquery import PyQuery as pq
 import telnetlib
 
-acl_template="access-list %s deny ip any host %s"
+def getOption(config,option):
+    if hasattr(config,'__getitem__'):
+        return config.get(option,'')
+    else:
+        return config.__dict__.get(option,'')
 
-def parse_data(data,acl):
+def parse_data(data,options):
+    try:
+        acl=int(getOption(options,'acl'))
+    except:
+        raise Exception('acl mast be int')
+    
     doc=pq(data)
+    
     yield "no access-list %s"%acl
     for x in doc('ip'):
-        yield acl_template%(acl,x.text)
-    yield "access-list %s permit ip any any"
+        yield "access-list %s deny ip any host %s"%(acl,x.text)
+    yield "access-list %s permit ip any any"%acl
 
-def send_acl(acl,host,user=None,password=None):
+def send_line(session,line):
+    session.write(line.encode('utf-8')+'\r') 
+
+def send_acl(acl,options):
+    user=getOption(options,'user')
+    password=getOption(options,'password')
+    host=getOption(options,'cisco')
+    
+    if not host:
+        raise Exception('Please enter a host')
     telnet  = telnetlib.Telnet(host)
     if user: 
         telnet.read_until('Username: ', 3) 
-        telnet.write((user + '\r').encode('utf-8'))
+        send_line(telnet,user)
     if password:
         telnet.read_until('Password: ', 3)  
-        telnet.write((password + '\r').encode('utf-8')) 
+        send_line(telnet,password)
 
-    telnet.write('ena' + '\r')
-    telnet.write('conf t' + '\r')
+    send_line(telnet,'ena')# to-do: add enable password
+    send_line(telnet,'conf t')
 
     for line in acl:
-        telnet.write((line + '\r').encode('utf-8'))
-    telnet.write('end' + '\r')
+        send_line(telnet,line)
+    send_line(telnet,'end')
 
-    #telnet.write('wr' + '\r')
-    telnet.write('exit' + '\r')
+    #send_line(telnet,'wr')
+    send_line(telnet,'exit')
     return telnet.read_all()
-    
+
 def main():
     parser = OptionParser()
     parser.add_option("-f", "--file", dest="filename",
@@ -55,6 +74,5 @@ def main():
     data=fd.read()
     fd.close()
 
-    new_acl=parse_data(data,acl)
-
-    send_acl(new_acl,options.cisco,options.user,options.password)
+    new_acl=parse_data(data,options)
+    send_acl(new_acl,options)

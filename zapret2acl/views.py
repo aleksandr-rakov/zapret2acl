@@ -1,33 +1,38 @@
 # -*- coding: utf8 -*-
 from pyramid.view import view_config
-from pyramid.httpexceptions import HTTPTemporaryRedirect
 from .console import parse_data,send_acl
 
-@view_config(route_name='dash', renderer='main.mako')
-def dash_view(request):
-    status=request.params.get('status')
-    return {'request': request,'status':status}
-
-@view_config(route_name='form',request_method='POST')
-def form_view(request):
+@view_config(route_name='home', renderer='main.mako')
+def home_view(request):
     status=''
-    
-    try:
-        input_file = request.POST['file'].file
-        input_file.seek(0)
-        data=input_file.read()
-        input_file.close()
-    except:
-        status='Error reading file'
+    error=''
 
-    try:
-        new_acl=parse_data(data,request.POST.get('acl',''))
-    except:
-        status='Error parsing data'
+    show_params= request.registry.settings.get('show_params_in_form')!='false'
 
-    try:
-        status = send_acl(new_acl,request.POST.get('cisco',''),request.POST.get('user',''),request.POST.get('pass',''))
-    except:
-        status='Error sending acl to cisco'
+    if request.method=='POST':
+        try:
+            input_file = request.POST['file'].file
+            input_file.seek(0)
+            data=input_file.read()
+            input_file.close()
+        except Exception,error:
+            status='Error reading file'
 
-    return HTTPTemporaryRedirect(request.route_url('dash',_query={'status':status}))
+        if show_params:
+            options=request.POST
+        else:
+            options=request.registry.settings
+
+        if not status:
+            try:
+                new_acl=parse_data(data,options)
+            except Exception,error:
+               status='Error parsing data'
+
+        if not status:
+            try:
+                status = send_acl(new_acl,options)
+            except Exception,error:
+                status='Error sending acl to cisco'
+
+    return {'request': request,'status':status,'show_params':show_params,'error':error}

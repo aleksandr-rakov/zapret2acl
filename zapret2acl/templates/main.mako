@@ -7,31 +7,40 @@
   </head>
   <body>
     <div>
-      <form accept-charset="utf-8" enctype="multipart/form-data" method="POST" action="${request.route_url('form')}">
+      <form accept-charset="utf-8" enctype="multipart/form-data" method="POST" action="${request.route_url('home')}">
         <p>
           <input type="file" name='file'>
         </p>
         <p>
           <input type="submit" value="Upoad file">
         </p>
-        <p>
-          <label><input type="text" name='cisco'>Cisco ip</label>
-        </p>
-        <p>
-          <label><input type="text" name='acl'>Acl</label>
-        </p>
-        <p>
-          <label><input type="text" name='user'>User</label>
-        </p>
-        <p>
-          <label><input type="text" name='pass'>Password</label>
-        </p>
+        % if show_params:
+          <p>
+            <label><input type="text" name='cisco'>Cisco ip <strong>*</strong></label>
+          </p>
+          <p>
+            <label><input type="text" name='acl'>Acl <strong>*</strong></label>
+          </p>
+          <p>
+            <label><input type="text" name='user'>User</label>
+          </p>
+          <p>
+            <label><input type="text" name='pass'>Password</label>
+          </p>
+        % endif
       </form>
     </div>
     %if status:
-    <pre>
-        ${status}
-    </pre>
+      Статус
+      <pre>
+          ${status}
+      </pre>
+    %endif
+    %if error:
+      Ошибка
+      <pre>
+          ${error}
+      </pre>
     %endif
   </body>
 </html>
