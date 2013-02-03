@@ -12,13 +12,17 @@ zapret2acl
 `zapret2acl -f ~/Загрузки/dump.xml -c 192.168.1.1 -a 150 -u admin -p 123`
 
 Обязательные опции:
+```
   -f FILE, --file=FILE  read data from FILE
   -a ACL, --acl=ACL     acl number
   -c CISCO, --cisco=CISCO IP
+```
 
 Не обязательные опции:
+```
   -u USER, --user=USER  Username
   -p PASSWORD, --password=PASSWORD
+```
 
 Веб-интерфейс:
 =============
