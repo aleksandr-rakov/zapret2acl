@@ -71,7 +71,7 @@ def decode_result(result):
     return base64.standard_b64decode(result['registerZipArchive'])
 
 def store_file(result,prefix=store_files_to):
-    filename=prefix+datetime.now().strftime("%Y-%m-%d_%H:%M:%S")+'.zip'
-    f=open(filename,'w')
+    filename=datetime.now().strftime("%Y-%m-%d_%H:%M:%S")+'.zip'
+    f=open(prefix+filename,'w')
     f.write(decode_result(result))
     f.close()
