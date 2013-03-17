@@ -27,3 +27,7 @@ zapret2acl
 Веб-интерфейс:
 =============
 Чтобы не заполнять форму каждый раз можно прописать параметы в development.ini
+
+Программа для автоматической загрузки дампов с zapret-info.gov.ru 
+================
+https://github.com/aleksandr-rakov/zapret2acl/tree/master/service
