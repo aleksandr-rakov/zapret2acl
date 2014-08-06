@@ -2,6 +2,7 @@
 from optparse import OptionParser
 from pyquery import PyQuery as pq
 import telnetlib
+import ipaddr
 
 def getOption(config,option):
     if hasattr(config,'__getitem__'):
@@ -19,7 +20,12 @@ def parse_data(data,options):
     
     yield "no access-list %s"%acl
     for x in doc('ip'):
-        yield "access-list %s deny ip any host %s"%(acl,x.text)
+        yield "access-list %s deny ip any host %s"%(acl, x.text)
+    for x in doc('ipSubnet'):
+        ip=ipaddr.ip_network(x)
+        net=str(ip.ip)
+        wildcard=str(ip.hostmask)
+        yield "access-list %s deny ip any %s %s"%(acl, net, wildcard)
     yield "access-list %s permit ip any any"%acl
 
 def send_line(session,line):

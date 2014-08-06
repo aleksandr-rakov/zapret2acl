@@ -48,7 +48,8 @@ def send_request(req,req_signed):
     client = Client(WSDL)
     result = client.service.sendRequest(
         base64.standard_b64encode(req),
-        base64.standard_b64encode(req_signed)
+        base64.standard_b64encode(req_signed),
+        '2.0' #use 2.0 version format
     )
     return result
 
