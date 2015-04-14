@@ -1,6 +1,14 @@
 # -*- coding: utf8 -*-
 from pyramid.view import view_config
 from .console import parse_data,send_acl
+from pyramid.response import Response
+
+def _view_streamed(iterator):
+    headers = [('Content-Type', 'text/event-stream'),
+               ('Cache-Control', 'no-cache')]
+    response = Response(headerlist=headers)
+    response.app_iter = iterator
+    return response
 
 @view_config(route_name='home', renderer='main.mako')
 def home_view(request):
