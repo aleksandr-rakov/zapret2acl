@@ -13,7 +13,7 @@ operatorName =u"Название оператора"
 inn=u"1231231231"
 ogrn=u"1231231231231"
 email=u"test@mail.ru"
-store_files_to=''/var/www/zapret-info/''
+store_files_to='/var/www/zapret-info/'
 ################################################################################
 
 template="""<?xml version="1.0" encoding="windows-1251"?>
