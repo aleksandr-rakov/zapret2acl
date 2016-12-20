@@ -9,7 +9,10 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 requires = [
     'pyramid',
     'waitress',
-    'pyquery'
+    'pyquery',
+    'pyramid_mako',
+    'ipaddr',
+    'suds'
     ]
 
 setup(name='zapret2acl',
