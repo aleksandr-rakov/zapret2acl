@@ -24,7 +24,7 @@ def parse_data(data,options):
     except:
         raise Exception('acl mast be int')
     interfaces=get_interfaces(options)
-    
+
     doc=pq(data)
 
     if interfaces:
@@ -32,7 +32,7 @@ def parse_data(data,options):
             yield "interface %s"%interface
             yield "no ip access-group %s out"%acl
         yield "exit"
-    
+
     yield "no access-list %s"%acl
     for x in doc('ip'):
         yield "access-list %s deny ip any host %s"%(acl, x.text)
@@ -72,11 +72,12 @@ def send_acl(acl,options):
 
     for line in acl:
         send_line(telnet,line)
+        yield "loading... "
     send_line(telnet,'end')
 
     #send_line(telnet,'wr')
     send_line(telnet,'exit')
-    return telnet.read_all()
+    yield telnet.read_all()
 
 def main():
     parser = OptionParser()

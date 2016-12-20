@@ -25,7 +25,7 @@ def live_forever(func):
 def check_updates():
     global last_update
     global need_send_request
-    sleep=60*60
+    sleep=4*60*60
     while True:
         print "Checking registry updates"
         tmp = service.get_LastDumpDate()
@@ -48,7 +48,7 @@ def send_request():
             result=service.send_request(request,request_signed)
             code=service.request_status(result)
             if code:
-                print "request sent"
+                print "request sent",code
                 need_send_request=False
                 last_request_code=code
         gevent.sleep(sleep)

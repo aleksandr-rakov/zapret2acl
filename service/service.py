@@ -13,7 +13,7 @@ operatorName =u"Название оператора"
 inn=u"1231231231"
 ogrn=u"1231231231231"
 email=u"test@mail.ru"
-store_files_to=''
+store_files_to=''/var/www/zapret-info/''
 ################################################################################
 
 template="""<?xml version="1.0" encoding="windows-1251"?>
@@ -25,7 +25,9 @@ template="""<?xml version="1.0" encoding="windows-1251"?>
 <email>${email}</email>
 </request>"""
 cmd = '%s smime -sign -binary -signer %s -outform DER' % (openssl,key)
-WSDL = 'http://www.zapret-info.gov.ru/services/OperatorRequest/?wsdl'
+WSDL = 'http://vigruzki.rkn.gov.ru/services/OperatorRequest/?wsdl'
+#WSDL = 'http://www.zapret-info.gov.ru/services/OperatorRequest/?wsdl'
+#WSDL = 'http://vigruzki.rkn.gov.ru/services/OperatorRequestTest/?wsdl'
 
 def create_request():
     requestTime=datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f+00:00")

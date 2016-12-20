@@ -4,7 +4,7 @@ from .console import parse_data,send_acl
 from pyramid.response import Response
 
 def _view_streamed(iterator):
-    headers = [('Content-Type', 'text/event-stream'),
+    headers = [('Content-Type', 'text/plain'),
                ('Cache-Control', 'no-cache')]
     response = Response(headerlist=headers)
     response.app_iter = iterator
@@ -39,7 +39,7 @@ def home_view(request):
 
         if not status:
             try:
-                status = send_acl(new_acl,options)
+                return _view_streamed(send_acl(new_acl,options))
             except Exception,error:
                 status='Error sending acl to cisco'
 
