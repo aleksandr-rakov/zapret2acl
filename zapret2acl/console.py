@@ -4,6 +4,7 @@ from pyquery import PyQuery as pq
 import telnetlib
 import ipaddr
 from pyramid.settings import aslist
+from urlparse import urlparse
 
 def getOption(config,option):
     if hasattr(config,'__getitem__'):
@@ -17,6 +18,55 @@ def get_interfaces(options):
     if interfaces_str:
         interfaces = aslist(interfaces_str,False)
     return interfaces
+
+def is_ip(str):
+    parts=str.split('.')
+    if len(parts)==4:
+        for x in parts:
+            if not x.isdigit():
+                return False
+        return True
+    return False
+
+def parse_dns_data(data):
+
+    found={}
+    
+    doc=pq(data)
+
+    yield """;RPZ
+$TTL 10
+@      IN SOA rpz.zone. rpz.zone. (
+       5;
+       3600;
+       300;
+       86400;
+       60 )
+       IN      NS      localhost.
+    
+"""
+
+    for x in doc('domain'):
+        domain=x.text
+        if domain in found:
+            continue
+        found[domain]=1
+        yield "%s CNAME .\n"%domain
+
+    for x in doc('url'):
+        parsed_uri = urlparse(x.text)
+        domain=parsed_uri.netloc
+        if parsed_uri.port:
+            domain=domain[:-(len(str(parsed_uri.port))+1)]
+        if is_ip(domain):
+            continue
+        if domain in found:
+            continue
+        found[domain]=1
+        yield "%s CNAME .\n"%domain
+
+    yield "\n"
+
 
 def parse_data(data,options):
     try:

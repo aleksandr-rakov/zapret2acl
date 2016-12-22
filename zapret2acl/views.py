@@ -1,7 +1,8 @@
 # -*- coding: utf8 -*-
 from pyramid.view import view_config
-from .console import parse_data,send_acl
+from .console import parse_data,send_acl,parse_dns_data
 from pyramid.response import Response
+import subprocess
 
 def _view_streamed(iterator):
     headers = [('Content-Type', 'text/plain'),
@@ -44,3 +45,42 @@ def home_view(request):
                 status='Error sending acl to cisco'
 
     return {'request': request,'status':status,'show_params':show_params,'error':error}
+
+@view_config(route_name='dns', renderer='dns.mako')
+def dns_view(request):
+    status=''
+    error=''
+
+    if request.method=='POST':
+        try:
+            input_file = request.POST['file'].file
+            input_file.seek(0)
+            data=input_file.read()
+            input_file.close()
+        except Exception,error:
+            status='Error reading file'
+
+        if not status:
+            try:
+                new_dns_data=parse_dns_data(data)
+            except Exception,error:
+               status='Error parsing data'
+
+        if not status:
+            try:
+                f=open('/tmp/dns','w')
+                for x in new_dns_data:
+                    f.write(x.encode('utf8'))
+                f.close()
+                for server in request.registry.settings['dns_hosts'].split():
+                    server,port=server.split(':')
+                    status+=subprocess.check_output([
+                            request.registry.settings['dns_update_cmd'], 
+                            server,
+                            port,
+                            '/tmp/dns'
+                        ],shell=True)
+            except Exception,error:
+                status='Error sending acl to cisco'
+
+    return {'request': request,'status':status,'error':error}

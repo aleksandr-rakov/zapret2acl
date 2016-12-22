@@ -7,6 +7,7 @@
   </head>
   <body>
     <div>
+      Load file to cisco
       <form accept-charset="utf-8" enctype="multipart/form-data" method="POST" action="${request.route_url('home')}">
         <p>
           <input type="file" name='file'>
