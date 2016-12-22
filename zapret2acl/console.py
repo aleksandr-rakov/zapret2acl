@@ -46,24 +46,28 @@ $TTL 10
     
 """
 
-    for x in doc('domain'):
-        domain=x.text
-        if domain in found:
-            continue
-        found[domain]=1
-        yield "%s CNAME .\n"%domain
+    for x in doc('content'):
+        el=pq(x)
+        et=el.attr('blockType')
+        if et in ('domain','domain-mask'):
+            for x in el('domain'):
+                domain=x.text
+                if domain in found:
+                    continue
+                found[domain]=1
+                yield "%s CNAME .\n"%domain
 
-    for x in doc('url'):
-        parsed_uri = urlparse(x.text)
-        domain=parsed_uri.netloc
-        if parsed_uri.port:
-            domain=domain[:-(len(str(parsed_uri.port))+1)]
-        if is_ip(domain):
-            continue
-        if domain in found:
-            continue
-        found[domain]=1
-        yield "%s CNAME .\n"%domain
+    # for x in doc('url'):
+    #     parsed_uri = urlparse(x.text)
+    #     domain=parsed_uri.netloc
+    #     if parsed_uri.port:
+    #         domain=domain[:-(len(str(parsed_uri.port))+1)]
+    #     if is_ip(domain):
+    #         continue
+    #     if domain in found:
+    #         continue
+    #     found[domain]=1
+    #     yield "%s CNAME .\n"%domain
 
     yield "\n"
 
@@ -84,13 +88,25 @@ def parse_data(data,options):
         yield "exit"
 
     yield "no access-list %s"%acl
-    for x in doc('ip'):
-        yield "access-list %s deny ip any host %s"%(acl, x.text)
-    for x in doc('ipSubnet'):
-        ip=ipaddr.ip_network(x)
-        net=str(ip.ip)
-        wildcard=str(ip.hostmask)
-        yield "access-list %s deny ip any %s %s"%(acl, net, wildcard)
+
+    found={}
+    for x in doc('content'):
+        el=pq(x)
+        et=el.attr('blockType')
+        if et in ('default','ip',None):
+            for x in el('ip'):
+                if x.text in found:
+                    continue
+                found[x.text]=True
+                yield "access-list %s deny ip any host %s"%(acl, x.text)
+            for x in el('ipSubnet'):
+                if x.text in found:
+                    continue
+                ip=ipaddr.ip_network(x.text)
+                net=str(ip.ip)
+                wildcard=str(ip.hostmask)
+                found[x.text]=True
+                yield "access-list %s deny ip any %s %s"%(acl, net, wildcard)
     yield "access-list %s permit ip any any"%acl
 
     if interfaces:
