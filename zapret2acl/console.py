@@ -110,7 +110,7 @@ def send_line(session,line):
 def send_lines(session,lines):
     session.write('\r'.join(lines).encode('utf-8')+'\r') 
 
-def send_acl(acl,options):
+def send_acl(acl_data,options):
     user=getOption(options,'user')
     password=getOption(options,'password')
     host=getOption(options,'cisco')
@@ -140,7 +140,7 @@ def send_acl(acl,options):
         yield "exit"
 
     buf=[]
-    for line in acl:
+    for line in acl_data:
         buf.append(line)
 
         if len(buf)>100:
