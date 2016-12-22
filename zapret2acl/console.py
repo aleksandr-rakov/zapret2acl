@@ -77,15 +77,8 @@ def parse_data(data,options):
         acl=int(getOption(options,'acl'))
     except:
         raise Exception('acl mast be int')
-    interfaces=get_interfaces(options)
 
     doc=pq(data)
-
-    if interfaces:
-        for interface in interfaces:
-            yield "interface %s"%interface
-            yield "no ip access-group %s out"%acl
-        yield "exit"
 
     yield "no access-list %s"%acl
 
@@ -107,16 +100,15 @@ def parse_data(data,options):
                 wildcard=str(ip.hostmask)
                 found[x.text]=True
                 yield "access-list %s deny ip any %s %s"%(acl, net, wildcard)
+
     yield "access-list %s permit ip any any"%acl
 
-    if interfaces:
-        for interface in interfaces:
-            yield "interface %s"%interface
-            yield "ip access-group %s out"%acl
-        yield "exit"
 
 def send_line(session,line):
     session.write(line.encode('utf-8')+'\r') 
+
+def send_lines(session,lines):
+    session.write('\r'.join(lines).encode('utf-8')+'\r') 
 
 def send_acl(acl,options):
     user=getOption(options,'user')
@@ -136,9 +128,36 @@ def send_acl(acl,options):
     send_line(telnet,'ena')# to-do: add enable password
     send_line(telnet,'conf t')
 
+    try:
+        acl=int(getOption(options,'acl'))
+    except:
+        raise Exception('acl mast be int')
+    interfaces=get_interfaces(options)
+    if interfaces:
+        for interface in interfaces:
+            yield "interface %s"%interface
+            yield "no ip access-group %s out"%acl
+        yield "exit"
+
+    buf=[]
     for line in acl:
-        send_line(telnet,line)
+        buf.append(line)
+
+        if len(buf)>100:
+            send_lines(telnet,buf)
+            buf=[]
+            yield "loading... "
+
+    if buf:
+        send_lines(telnet,buf)
         yield "loading... "
+
+    if interfaces:
+        for interface in interfaces:
+            yield "interface %s"%interface
+            yield "ip access-group %s out"%acl
+        yield "exit"
+
     send_line(telnet,'end')
 
     #send_line(telnet,'wr')
