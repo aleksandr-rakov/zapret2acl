@@ -74,12 +74,10 @@ def dns_view(request):
                 f.close()
                 for server in request.registry.settings['dns_hosts'].split():
                     server,port=server.split(':')
-                    status+=subprocess.check_output([
-                            request.registry.settings['dns_update_cmd'], 
-                            server,
-                            port,
-                            '/tmp/dns'
-                        ],shell=True)
+                    cmd="%s %s %s %s"%(request.registry.settings['dns_update_cmd'],server,port,'/tmp/dns')
+                    status+=subprocess.check_output(
+                            cmd
+                            ,shell=True)
             except Exception,error:
                 status='Error sending acl to cisco'
 
