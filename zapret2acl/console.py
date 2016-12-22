@@ -28,7 +28,20 @@ def is_ip(str):
         return True
     return False
 
-def parse_dns_data(data):
+def extract_domain(uri):
+    parsed_uri = urlparse(uri)
+    domain=parsed_uri.netloc
+    if parsed_uri.port:
+        domain=domain[:-(len(str(parsed_uri.port))+1)]
+    return domain
+
+def load_white_list():
+    return []
+
+def parse_dns_data(data,white_list=None):
+
+    if white_list is None:
+        white_list=[]
 
     found={}
     
@@ -52,31 +65,36 @@ $TTL 10
         if et in ('domain','domain-mask'):
             for x in el('domain'):
                 domain=x.text
+                if domain in white_list:
+                    continue
                 if domain in found:
                     continue
                 found[domain]=1
                 yield "%s CNAME .\n"%domain
 
-    # for x in doc('url'):
-    #     parsed_uri = urlparse(x.text)
-    #     domain=parsed_uri.netloc
-    #     if parsed_uri.port:
-    #         domain=domain[:-(len(str(parsed_uri.port))+1)]
-    #     if is_ip(domain):
-    #         continue
-    #     if domain in found:
-    #         continue
-    #     found[domain]=1
-    #     yield "%s CNAME .\n"%domain
+        elif et in ('default',None):
+            for x in el('url'):
+                domain=extract_domain(x.text)
+                if is_ip(domain):
+                    continue
+                if domain in white_list:
+                    continue
+                if domain in found:
+                    continue
+                found[domain]=1
+                yield "%s CNAME .\n"%domain
 
     yield "\n"
 
 
-def parse_data(data,options):
+def parse_data(data,options,white_list=None):
     try:
         acl=int(getOption(options,'acl'))
     except:
         raise Exception('acl mast be int')
+
+    if white_list is None:
+        white_list=[]
 
     doc=pq(data)
 
@@ -87,12 +105,28 @@ def parse_data(data,options):
         el=pq(x)
         et=el.attr('blockType')
         if et in ('default','ip',None):
+            if et in ('default',None):
+                url_found=False
+                ip_found=False
+                for x in el('url'):
+                    url_found=True
+                    domain=extract_domain(x.text)
+                    if is_ip(domain):
+                        ip_found=True
+
+                if url_found and not ip_found:
+                    continue
+
             for x in el('ip'):
+                if x.text in white_list:
+                    continue
                 if x.text in found:
                     continue
                 found[x.text]=True
                 yield "access-list %s deny ip any host %s"%(acl, x.text)
             for x in el('ipSubnet'):
+                if x.text in white_list:
+                    continue
                 if x.text in found:
                     continue
                 ip=ipaddr.ip_network(x.text)

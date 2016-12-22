@@ -7,7 +7,8 @@
   </head>
   <body>
     <div>
-      Load file to DNS
+      <%include file="nav.mako"/>
+      <h3>Load file to DNS</h3>
       <form accept-charset="utf-8" enctype="multipart/form-data" method="POST" action="${request.route_url('dns')}">
         <p>
           <input type="file" name='file'>
