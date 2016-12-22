@@ -35,7 +35,9 @@ def extract_domain(uri):
         domain=domain[:-(len(str(parsed_uri.port))+1)]
     return domain
 
-def load_white_list():
+def load_white_list(options):
+    if options.get('white_list_path'):
+        return [x.strip().encode('utf8') for x in open(options['white_list_path']).readlines()]
     return []
 
 def parse_dns_data(data,white_list=None):
@@ -210,6 +212,8 @@ def main():
                       help="Username", metavar="USER")
     parser.add_option("-p", "--password", dest="password",
                       help="Password", metavar="PASSWORD")
+    parser.add_option("-w", "--white_list", dest="white_list",
+                      help="Whitelist", metavar="WHITELIST")
     (options, args) = parser.parse_args()
 
     for x in ['filename','acl','cisco']:

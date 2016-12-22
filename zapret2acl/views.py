@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 from pyramid.view import view_config
-from .console import parse_data,send_acl,parse_dns_data
+from .console import parse_data,send_acl,parse_dns_data,load_white_list
 from pyramid.response import Response
 import subprocess
 
@@ -78,7 +78,32 @@ def dns_view(request):
                     status+=subprocess.check_output(
                             cmd
                             ,shell=True)
+                status+="DNS ok"
             except Exception,error:
                 status='Error sending acl to cisco'
 
     return {'request': request,'status':status,'error':error}
+
+@view_config(route_name='white_list', renderer='white_list.mako')
+def white_list_view(request):
+    status=''
+    error=''
+
+    if request.method=='POST':
+        try:
+            input_file = request.POST['file'].file
+            input_file.seek(0)
+            data=input_file.read()
+            input_file.close()
+            open(request.registry.settings['white_list_path'],'w').write(data)
+        except Exception,error:
+            status='Error reading file'
+
+    white_list=[]
+    white_list_load_error=False
+    try:
+        white_list=load_white_list(request.registry.settings)
+    except:
+        white_list_load_error=True
+
+    return {'request':request,'status':status,'error':error,'white_list':white_list,'white_list_load_error':white_list_load_error}
