@@ -40,10 +40,9 @@ def load_white_list(options):
         return [x.strip().encode('utf8') for x in open(options['white_list_path']).readlines()]
     return []
 
-def parse_dns_data(data,white_list=None):
+def parse_dns_data(data,options):
 
-    if white_list is None:
-        white_list=[]
+    white_list=load_white_list(options)
 
     found={}
     
@@ -89,14 +88,13 @@ $TTL 10
     yield "\n"
 
 
-def parse_data(data,options,white_list=None):
+def parse_data(data,options):
     try:
         acl=int(getOption(options,'acl'))
     except:
         raise Exception('acl mast be int')
 
-    if white_list is None:
-        white_list=[]
+    white_list=load_white_list(options)
 
     doc=pq(data)
 
