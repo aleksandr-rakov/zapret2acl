@@ -62,7 +62,7 @@ def dns_view(request):
 
         if not status:
             try:
-                new_dns_data=parse_dns_data(data)
+                new_dns_data=parse_dns_data(data,request.registry.settings)
             except Exception,error:
                status='Error parsing data'
 
