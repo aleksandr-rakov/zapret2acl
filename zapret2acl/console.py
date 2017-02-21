@@ -40,7 +40,27 @@ def load_white_list(options):
         return [x.strip().encode('utf8') for x in open(options['white_list_path']).readlines()]
     return []
 
+def domain_name_expand(domain,mode=None):
+    result=[]
+    if mode is None:
+        result.append(domain)
+
+    elif mode=='www':
+        if domain.startswith('www.'):
+            result.append(domain)
+            result.append(domain[4:])
+
+    elif mode=='*':
+        if domain.startswith('www.'):
+            domain=domain[4:]
+            result.append(domain)
+            result.append("*.%s"%domain)
+
+    return result
+
 def parse_dns_data(data,options):
+
+    mode=options.get('dns_expand_mode')
 
     white_list=load_white_list(options)
 
@@ -68,10 +88,12 @@ $TTL 10
                 domain=x.text
                 if domain in white_list:
                     continue
-                if domain in found:
-                    continue
-                found[domain]=1
-                yield "%s CNAME .\n"%domain
+
+                for domain_name in domain_name_expand(domain,mode):
+                    if domain_name in found:
+                        continue
+                    found[domain_name]=1
+                    yield "%s CNAME .\n"%domain_name
 
         elif et in ('default',None):
             for x in el('url'):
@@ -80,10 +102,12 @@ $TTL 10
                     continue
                 if domain in white_list:
                     continue
-                if domain in found:
-                    continue
-                found[domain]=1
-                yield "%s CNAME .\n"%domain
+
+                for domain_name in domain_name_expand(domain,mode):
+                    if domain_name in found:
+                        continue
+                    found[domain_name]=1
+                    yield "%s CNAME .\n"%domain_name
 
     yield "\n"
 
