@@ -46,15 +46,18 @@ def domain_name_expand(domain,mode=None):
         result.append(domain)
 
     elif mode=='www':
+        result.append(domain)
         if domain.startswith('www.'):
-            result.append(domain)
             result.append(domain[4:])
+        else:
+            result.append("www.%s"%domain)
 
     elif mode=='*':
         if domain.startswith('www.'):
-            domain=domain[4:]
             result.append(domain)
-            result.append("*.%s"%domain)
+            domain=domain[4:]
+        result.append(domain)
+        result.append("*.%s"%domain)
 
     return result
 
