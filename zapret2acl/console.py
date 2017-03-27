@@ -195,10 +195,11 @@ def send_acl(acl_data,options):
         raise Exception('acl mast be int')
     interfaces=get_interfaces(options)
     if interfaces:
+        yield "Disabling ip access-group on interfaces"
         for interface in interfaces:
-            yield "interface %s"%interface
-            yield "no ip access-group %s out"%acl
-        yield "exit"
+            send_line(telnet,"interface %s"%interface)
+            send_line(telnet,"no ip access-group %s out"%acl)
+        send_line(telnet,"exit")
 
     buf=[]
     for line in acl_data:
@@ -214,10 +215,11 @@ def send_acl(acl_data,options):
         yield "loading... "
 
     if interfaces:
+        yield "Enabling ip access-group on interfaces"
         for interface in interfaces:
-            yield "interface %s"%interface
-            yield "ip access-group %s out"%acl
-        yield "exit"
+            send_line(telnet,"interface %s"%interface)
+            send_line(telnet,"ip access-group %s out"%acl)
+        send_line(telnet,"exit")
 
     send_line(telnet,'end')
 
